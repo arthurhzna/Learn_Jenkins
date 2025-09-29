@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   stages {
-    stage('Print Info') {
+    stage('Print Info test 2') {
       steps {
         script {
           echo "Branch Name: ${env.BRANCH_NAME}"
