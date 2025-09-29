@@ -1,0 +1,52 @@
+pipeline {
+  agent any
+  environment {
+    IMAGE_NAME = "arthurhozanna/order-service"
+    BUILD_TAG = "${env.BUILD_NUMBER}" // tag unik per build
+    HOST = ""
+    COMPOSE_FILE = ""
+  }
+
+  stages {
+    stage('Set Environment') {
+      steps {
+        script {
+          if (env.BRANCH_NAME == 'develop') {
+            env.HOST = 'dev-server.example.com'
+            env.COMPOSE_FILE = 'docker-compose.dev.yml'
+          } else if (env.BRANCH_NAME == 'staging') {
+            env.HOST = 'staging-server.example.com'
+            env.COMPOSE_FILE = 'docker-compose.staging.yml'
+          } else if (env.BRANCH_NAME == 'main') {
+            env.HOST = 'prod-server.example.com'
+            env.COMPOSE_FILE = 'docker-compose.prod.yml'
+          } else {
+            error "Branch ${env.BRANCH_NAME} tidak punya target environment"
+          }
+        }
+      }
+    }
+
+    stage('Build Image') {
+      steps {
+        sh "docker build -t ${IMAGE_NAME}:${BUILD_TAG} ."
+        sh "docker push ${IMAGE_NAME}:${BUILD_TAG}"
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        sshagent(credentials: ['server-key']) {
+          sh """
+          ssh user@${env.HOST} '
+            cd /path/to/deployment/folder &&
+            export BUILD_TAG=${BUILD_TAG} &&
+            docker compose -f ${COMPOSE_FILE} pull &&
+            docker compose -f ${COMPOSE_FILE} up -d --build --force-recreate
+          '
+          """
+        }
+      }
+    }
+  }
+}

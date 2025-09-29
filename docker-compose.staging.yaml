@@ -1,0 +1,9 @@
+name: learn_jenkins_staging
+services:
+  learn_jenkins_staging:
+    container_name: learn_jenkins_staging
+    image: arthurhozanna/learn_jenkins_staging:1
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
