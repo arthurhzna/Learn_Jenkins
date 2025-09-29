@@ -1,0 +1,9 @@
+name: learn_jenkins_prod
+services:
+  learn_jenkins_prod:
+    container_name: learn_jenkins_prod
+    image: arthurhozanna/learn_jenkins_prod:1
+    ports:
+      - "8003:8003"
+    env_file:
+      - .env
