@@ -1,0 +1,73 @@
+{
+    "info": {
+      "name": "Jenkins User API",
+      "description": "Collection for testing User CRUD operations",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Create User",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"username\": \"testuser\"\n}"
+          },
+          "url": {
+            "raw": "{{base_url}}/users",
+            "host": ["{{base_url}}"],
+            "path": ["users"]
+          }
+        }
+      },
+      {
+        "name": "Get User by ID",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{base_url}}/users/1",
+            "host": ["{{base_url}}"],
+            "path": ["users", "1"]
+          }
+        }
+      },
+      {
+        "name": "Get All Users",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{base_url}}/users",
+            "host": ["{{base_url}}"],
+            "path": ["users"]
+          }
+        }
+      },
+      {
+        "name": "Welcome Endpoint",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "{{base_url}}/",
+            "host": ["{{base_url}}"],
+            "path": [""]
+          }
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:8080",
+        "type": "string"
+      }
+    ]
+  }
