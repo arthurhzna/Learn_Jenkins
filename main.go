@@ -13,10 +13,12 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	port := os.Getenv("PORT")
+	_ = godotenv.Load()
+	port := os.Getenv("Port")
 	db, err := config.InitDatabase()
 	if err != nil {
 		panic(err)
@@ -34,7 +36,7 @@ func main() {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Path not found"})
 	})
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "Welcome to User Service"})
+		c.JSON(http.StatusOK, gin.H{"message": "Simple Backend for Learn Jenkins"})
 	})
 
 	route := routes.NewRoute(userController, router)
