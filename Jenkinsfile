@@ -64,10 +64,8 @@ pipeline {
         }
       }
     }
-
     stage('Unit Test') {
       steps {
-
         sh '''
           docker run --rm \
             -v "$WORKSPACE":/app -w /app \
@@ -75,14 +73,19 @@ pipeline {
               apk add --no-cache git
               go env
               go mod tidy
-              go test ./...
+              if go test ./...; then
+                echo '✅ All tests passed'
+              else
+                echo '❌ Some tests failed' 1>&2
+                exit 1
+              fi
             "
         '''
       }
     }
     stage('Build & Push Image') {
       when {
-        expression { return !env.CHANGE_ID }
+        expression { return !env.CHANGE_ID && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
       }
       steps {
         script {
@@ -99,7 +102,7 @@ pipeline {
 
     stage('Deploy to Remote Host') {
       when {
-        expression { return !env.CHANGE_ID } 
+        expression { return !env.CHANGE_ID && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
       }
       steps {
         script {
