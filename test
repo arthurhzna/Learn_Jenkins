@@ -14,20 +14,6 @@ pipeline {
   }
 
   stages {
-    stage('Check skip') {
-    steps {
-        script {
-        if (env.CHANGE_ID) {
-            def title = env.CHANGE_TITLE ?: ''
-            echo "PR title: ${title}"
-            if (title.toLowerCase().contains('[skip ci]')) {
-            currentBuild.result = 'ABORTED'
-            error('Aborted by [skip ci] in PR title')
-            }
-        }
-        }
-    }
-    }
     stage('Checkout') {
       steps {
         checkout scm
@@ -40,6 +26,7 @@ pipeline {
     stage('Set Target & Image') {
       steps {
         script {
+          // map branch -> target & image name
           def b = env.BRANCH_NAME?.toLowerCase()
           if (b == 'develop' || b == 'development') {
             env.TARGET = 'dev'
@@ -51,11 +38,12 @@ pipeline {
             env.TARGET = 'prod'
             env.IMAGE_NAME = 'arthurhozanna/learn_jenkins_prod'
           } else {
-
+            // feature branches, PR branches -> map to dev by default
             env.TARGET = 'dev'
             env.IMAGE_NAME = 'arthurhozanna/learn_jenkins_develop'
           }
 
+          // tag by short commit + build number for reproducibility
           def shortSha = (env.GIT_COMMIT ?: sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim())
           env.IMAGE_TAG = "${shortSha ?: 'local'}-${env.BUILD_NUMBER ?: '0'}"
           env.IMAGE_FULL = "${env.IMAGE_NAME}:${env.IMAGE_TAG}"
@@ -67,21 +55,16 @@ pipeline {
 
     stage('Unit Test') {
       steps {
-
-        sh '''
-          docker run --rm \
-            -v "$WORKSPACE":/app -w /app \
-            golang:1.22.7-alpine3.20 sh -eux -c "
-              apk add --no-cache git
-              go env
-              go mod tidy
-              go test ./...
-            "
-        '''
+        script {
+          // run unit tests for Go project
+          sh 'go test ./...'
+        }
       }
     }
+
     stage('Build & Push Image') {
       when {
+        // skip build/push for PRs (multibranch PRs set env.CHANGE_ID)
         expression { return !env.CHANGE_ID }
       }
       steps {
@@ -99,11 +82,13 @@ pipeline {
 
     stage('Deploy to Remote Host') {
       when {
-        expression { return !env.CHANGE_ID } 
+        expression { return !env.CHANGE_ID } // hanya branch, bukan PR
       }
       steps {
         script {
+          // gunakan ssh key credential (ssh-user-private-key) dan string creds HOST/USERNAME
           withCredentials([sshUserPrivateKey(credentialsId: env.SSH_KEY_CREDS, keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
+            // pastikan docker-compose.<target>.yaml di server menunjuk ke image: IMAGE_FULL (atau gunakan variable substitution)
             sh """
               ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${USERNAME}@${HOST} '
                 cd /path/to/app || exit 1
