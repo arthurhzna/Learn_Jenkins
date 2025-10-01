@@ -1,20 +1,27 @@
 pipeline {
   agent any
 
+  environment {
+    IMAGE_NAME = 'Learn_Jenkins'   
+    DOCKER_CREDENTIALS = credentials('docker-credential')
+    GITHUB_CREDENTIALS = credentials('github-credential')
+    SSH_KEY = credentials('ssh-key')
+    HOST = credentials('host')
+    USERNAME = credentials('username')   
+  }
+
   stages {
-    stage('Print Info test 2') {
+    stage('Check Commit Message') {
       steps {
-        script {
-          echo "Branch Name: ${env.BRANCH_NAME}"
-          echo "Is Pull Request: ${env.CHANGE_ID}" // kalau PR ada isinya
-          
-          if (env.CHANGE_ID) {
-            echo "🔵 Ini job PR (hasil merge simulasi)!"
-          } else {
-            echo "🟢 Ini job branch murni (kode asli)!"   
-          }
+        script{
+          echo "Commit Message: ${env.COMMIT_MESSAGE}"
+          echo "IMAGE_NAME: ${IMAGE_NAME}"
+          echo "DOCKER_CREDENTIALS: ${DOCKER_CREDENTIALS}"
+          echo "GITHUB_CREDENTIALS: ${GITHUB_CREDENTIALS}"
+          echo "SSH_KEY: ${SSH_KEY}"
+          echo "HOST: ${HOST}"
+          echo "USERNAME: ${USERNAME}"
         }
       }
     }
-  }
 }
