@@ -67,7 +67,7 @@ pipeline {
     stage('Unit Test') {
       steps {
         sh '''
-          docker run --rm \
+          sudo docker run --rm \
             -v "$WORKSPACE":/app -w /app \
             golang:1.22.7-alpine3.20 sh -eux -c "
               apk add --no-cache git
@@ -85,7 +85,11 @@ pipeline {
     }
     stage('Build & Push Image') {
       when {
-        expression { return !env.CHANGE_ID && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
+        expression { 
+          def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
+          return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
+        }
+        // expression { return !env.CHANGE_ID && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
       }
       steps {
         script {
@@ -102,7 +106,11 @@ pipeline {
 
     stage('Deploy to Remote Host') {
       when {
-        expression { return !env.CHANGE_ID && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
+        expression { 
+          def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
+          return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
+        }
+        // expression { return !env.CHANGE_ID && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
       }
       steps {
         script {
