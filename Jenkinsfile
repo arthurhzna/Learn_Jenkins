@@ -200,7 +200,6 @@ pipeline {
                 # Define app directory
                 APP_DIR="${APP_DIR}" 
 
-                # ensure parent exists 
                 mkdir -p "\$(dirname \"\$APP_DIR\")"
 
                 if [ -d "\$APP_DIR/.git" ]; then
@@ -213,10 +212,8 @@ pipeline {
                   cd "\$APP_DIR"
                 fi
 
-                # Pull latest image
-                docker-compose -f docker-compose.${TARGET}.yaml pull || true
+                docker-compose -f docker-compose.${TARGET}.yaml down --remove-orphans || true
 
-                # Copy .env.example to .env and update with sed
                 cp .env.example .env
                 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USER}/" .env
                 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASS}/" .env
@@ -225,12 +222,7 @@ pipeline {
                 sed -i "s/^DB_NAME=.*/DB_NAME=${DB_NAME_PROD}/" .env
                 sed -i "s/^PORT=.*/PORT=${PORT}/" .env
 
-                # Show .env content for debugging
-                echo "=== .env file content ==="
-                cat .env
-                echo "========================="
-
-                # Deploy
+                docker rm -f learn_jenkins_${TARGET} || true
                 docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans --force-recreate
               '
             """
