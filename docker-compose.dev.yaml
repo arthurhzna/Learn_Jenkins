@@ -1,3 +1,4 @@
+version: '3.8'
 name: learn_jenkins_develop
 services:
   learn_jenkins_develop:

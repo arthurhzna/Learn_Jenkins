@@ -209,7 +209,7 @@ pipeline {
                   git pull origin ${env.BRANCH_NAME}
                 else
                   echo "Directory does not exist. Cloning repository."
-                  git clone -b ${env.BRANCH_NAME} https://github.com/arthurhzna/Learn_Jenkins.git "\$APP_DIR"
+                  git clone -b ${env.BRANCH_NAME} git@github.com:arthurhzna/Learn_Jenkins.git "\$APP_DIR"
                   cd "\$APP_DIR"
                 fi
                 
