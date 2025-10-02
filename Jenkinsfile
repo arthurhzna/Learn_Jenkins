@@ -163,17 +163,15 @@ pipeline {
             sh """
               ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${USERNAME}@${HOST} '
                 # Define app directory
-                APP_DIR="/home/arthurhozana123/go/field-service"
+                APP_DIR="/home/arthurhozana123/go/Learn_Jenkins"
                 
-                if [ ! -d "$APP_DIR" ]; then
-                  echo "Creating directory: $APP_DIR"
-                  mkdir -p "$APP_DIR"
+                if [ ! -d "\$APP_DIR" ]; then
+                  echo "Creating directory: \$APP_DIR"
+                  mkdir -p "\$APP_DIR"
                 fi
                 
-                # Change to app directory
-                cd "$APP_DIR" || exit 1
+                cd "\$APP_DIR" || exit 1
                 
-                # Export environment variables
                 export DB_USER="${DB_USER}"
                 export DB_PASS="${DB_PASS}"
                 export DB_HOST="${DB_HOST}"
