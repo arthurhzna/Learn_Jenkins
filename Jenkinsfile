@@ -186,7 +186,7 @@ pipeline {
       }
       steps {
         script {
-          def deployEnv = (params.DEPLOY_ENV ?: env.DEPLOY_ENV ?: env.BRANCH_NAME ?: 'dev').toLowerCase()
+          def deployEnv = (params.DEPLOY_ENV ?: env.DEPLOY_ENV ?: TARGET ?: env.BRANCH_NAME ?: 'dev').toLowerCase()
           def appBase = "/home/arthurhozana123/go"
           def appName = "Learn_Jenkins"
           def suffix = (deployEnv == 'prod' || deployEnv == 'production') ? '_prod' : (deployEnv == 'staging' ? '_staging' : '_dev')
