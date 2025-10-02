@@ -5,4 +5,4 @@ services:
     ports:
       - "8003:8003"
     env_file:
-      - .env
+      - .env  
