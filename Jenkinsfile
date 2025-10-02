@@ -155,7 +155,45 @@ pipeline {
         }
       }
     }
+    stage('Update docker-compose.yaml') {
+      when {
+        expression { 
+          def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
+          return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
+        }
+      }
+      steps {
+        script {
+          sh """
+            sed -i 's|image: ${IMAGE_NAME}:[^\\n]*|image: ${IMAGE_FULL}|' docker-compose.${TARGET}.yaml
+          """
+        }
+      }
+    }
 
+    stage('Commit and Push Changes') {
+      when {
+        expression { 
+          def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
+          return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
+        }
+      }
+      steps {
+        script {
+          withCredentials([usernamePassword(credentialsId: 'github-credential', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')]) {
+            sh """
+              git config --global user.name 'Jenkins CI'
+              git config --global user.email 'jenkins@example.com'
+              git remote set-url origin https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/arthurhzna/Learn_Jenkins.git
+              git add docker-compose.${TARGET}.yaml
+              git commit -m 'Update image version to ${IMAGE_TAG} [skip ci]' || echo 'No changes to commit'
+              git pull origin ${env.BRANCH_NAME} --rebase
+              git push origin HEAD:${env.BRANCH_NAME}
+            """
+          }
+        }
+      }
+    }
     stage('Deploy to Remote Host') {
       steps {
         script {
@@ -165,13 +203,17 @@ pipeline {
                 # Define app directory
                 APP_DIR="/home/arthurhozana123/go/Learn_Jenkins"
                 
-                if [ ! -d "\$APP_DIR" ]; then
-                  echo "Creating directory: \$APP_DIR"
-                  mkdir -p "\$APP_DIR"
+                if [ -d "\$APP_DIR/.git" ]; then
+                  echo "Directory exists. Pulling latest changes."
+                  cd "\$APP_DIR"
+                  git pull origin ${TARGET_BRANCH}
+                else
+                  echo "Directory does not exist. Cloning repository."
+                  git clone -b ${TARGET_BRANCH} https://github.com/arthurhzna/Learn_Jenkins.git "\$APP_DIR"
+                  cd "\$APP_DIR"
                 fi
                 
-                cd "\$APP_DIR" || exit 1
-                
+                # Export environment variables
                 export DB_USER="${DB_USER}"
                 export DB_PASS="${DB_PASS}"
                 export DB_HOST="${DB_HOST}"
