@@ -198,7 +198,7 @@ pipeline {
             sh """
               ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${USERNAME}@${HOST} '
                 # Define app directory
-                APP_DIR="${APP_DIR}"
+                APP_DIR="${APP_DIR}" 
 
                 # ensure parent exists 
                 mkdir -p "\$(dirname \"\$APP_DIR\")"
