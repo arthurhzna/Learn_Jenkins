@@ -162,8 +162,18 @@ pipeline {
           withCredentials([sshUserPrivateKey(credentialsId: env.SSH_KEY_CREDS, keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
             sh """
               ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${USERNAME}@${HOST} '
-                cd /path/to/app || exit 1
+                # Define app directory
+                APP_DIR="/home/arthurhozana123/go/field-service"
                 
+                if [ ! -d "$APP_DIR" ]; then
+                  echo "Creating directory: $APP_DIR"
+                  mkdir -p "$APP_DIR"
+                fi
+                
+                # Change to app directory
+                cd "$APP_DIR" || exit 1
+                
+                # Export environment variables
                 export DB_USER="${DB_USER}"
                 export DB_PASS="${DB_PASS}"
                 export DB_HOST="${DB_HOST}"
@@ -171,8 +181,10 @@ pipeline {
                 export DB_NAME_PROD="${DB_NAME_PROD}"
                 export PORT="${PORT}"
                 
+                # Pull latest image
                 docker-compose -f docker-compose.${TARGET}.yaml pull || true
                 
+                # Deploy
                 docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans
               '
             """
