@@ -100,16 +100,14 @@ pipeline {
           echo "DB_NAME_TESTING: ${DB_NAME_TESTING}"
           echo "PORT: ${PORT}"
           
-          # Create .env file with all required variables
-          cat > .env << EOF
-        DB_USERNAME='${DB_USER}'
-        DB_PASSWORD='${DB_PASS}'  
-        DB_HOST='${DB_HOST}'
-        DB_PORT='${DB_PORT}'
-        DB_NAME='${DB_NAME_PROD}'
-        DB_NAME_TESTING='${DB_NAME_TESTING}'
-        PORT='${PORT}'
-        EOF
+          # Create .env file with all required variables - SIMPLIFIED VERSION
+          echo "DB_USERNAME=${DB_USER}" > .env
+          echo "DB_PASSWORD=${DB_PASS}" >> .env  
+          echo "DB_HOST=${DB_HOST}" >> .env
+          echo "DB_PORT=${DB_PORT}" >> .env
+          echo "DB_NAME=${DB_NAME_PROD}" >> .env
+          echo "DB_NAME_TESTING=${DB_NAME_TESTING}" >> .env
+          echo "PORT=${PORT}" >> .env
 
           # Show content of .env file
           echo "=== .env file content ==="
