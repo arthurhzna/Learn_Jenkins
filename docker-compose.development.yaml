@@ -1,7 +1,7 @@
 services: 
   learn_jenkins_develop:
     container_name: learn_jenkins_development
-    image: arthurhozanna/learn_jenkins_develop:26a693aa6868020eadfd853c977b232c9753c5fb-32
+    image: arthurhozanna/learn_jenkins_develop:ae93ed287f0665ff16789deedc64760d24582303-39
     ports:
       - "8001:8001"
     env_file:
