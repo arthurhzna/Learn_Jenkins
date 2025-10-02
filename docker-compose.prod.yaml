@@ -1,7 +1,7 @@
 services: 
   learn_jenkins_prod:
     container_name: learn_jenkins_prod
-    image: arthurhozanna/learn_jenkins_prod:9e9871f6eef81abbe8915833608bb66dddb45131-52
+    image: arthurhozanna/learn_jenkins_prod:767471c07d27b28b13bd01b55c18b15a41d70f36-56
     ports:
       - "8003:8003"
     env_file:
