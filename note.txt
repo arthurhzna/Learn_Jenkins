@@ -1,0 +1,120 @@
+Misalnya:
+
+Ada branch feature/login dengan PR ke main.
+Konfigurasi Jenkins:
+
+Discover Branches: Exclude branches that are also filed as PRs.
+Discover Pull Requests from Origin: The current pull request revision.
+
+
+
+Apa yang Terjadi?
+
+Discover Branches: Exclude branches that are also filed as PRs:
+
+Jenkins tidak membuat job pipeline untuk branch feature/login karena branch ini punya PR terbuka ke main.
+Hanya branch tanpa PR (misalnya, main, develop, atau branch lain tanpa PR) yang akan dibuatkan job pipeline (misalnya, job bernama main atau develop).
+
+
+Discover Pull Requests from Origin: The current pull request revision:
+
+Jenkins mendeteksi PR dari feature/login ke main dan membuat job PR (misalnya, PR-123).
+Job ini membuild kode dari commit terbaru di feature/login (head revision), tanpa simulasi merge ke main.
+
+
+
+Mengapa feature/login Tetap Dibuild?
+
+Ya, kode di feature/login tetap dibuild, tapi sebagai job PR (PR-123), bukan sebagai job branch terpisah (tidak ada job bernama feature-login).
+Ini adalah perilaku yang diinginkan: kamu ingin PR diuji (sebagai bagian dari proses review), tapi tidak ingin branch feature/login dibuild dua kali (sekali sebagai branch, sekali sebagai PR).
+
+Mengapa Tidak "Percuma"?
+Kombinasi Exclude branches that are also filed as PRs dengan The current pull request revision tidak percuma karena tujuannya adalah mengelompokkan dan mengoptimalkan build agar tidak duplikasi. Berikut alasan spesifiknya:
+
+Menghindari Duplikasi Build:
+
+Jika kamu tidak menggunakan Exclude branches that are also filed as PRs dan malah pakai All branches, Jenkins akan membuat dua job untuk feature/login:
+
+Job branch bernama feature-login (membangun kode feature/login).
+Job PR bernama PR-123 (juga membangun kode feature/login, karena The current pull request revision hanya build head revision feature/login).
+
+
+Ini berarti dua build identik untuk kode yang sama, yang membuang-buang resource (CPU, memori, waktu) di server Jenkins
+
+
+-------------------
+stage('Example') {
+    steps {
+        script {
+            def myVar = "nilai stage"
+            echo myVar  // ✅ bekerja
+            sh "echo ${myVar}"  // ✅ bekerja
+        }
+    }
+}
+
+stage('Example') {
+    steps {
+        script {
+            def myVar = "nilai stage"
+        }
+        script {
+            echo myVar  // ❌ ERROR: myVar tidak dikenal
+        }
+    }
+}
+
+stage('Stage 1') {
+    steps {
+        script {
+            def myVar = "nilai stage 1"
+        }
+    }
+}
+
+stage('Stage 2') {
+    steps {
+        script {
+            echo myVar  // ❌ ERROR: myVar tidak dikenal
+        }
+    }
+}
+
+environment {
+    SHARED_VAR = ""
+}
+
+stage('Stage 1') {
+    steps {
+        script {
+            env.SHARED_VAR = "nilai shared"
+        }
+    }
+}
+
+stage('Stage 2') {
+    steps {
+        script {
+            echo env.SHARED_VAR  // ✅ bekerja
+        }
+    }
+}
+
+def globalVar
+
+stage('Stage 1') {
+    steps {
+        script {
+            globalVar = "nilai global"
+        }
+    }
+}
+
+stage('Stage 2') {
+    steps {
+        script {
+            echo globalVar  // ✅ bekerja
+        }
+    }
+}
+

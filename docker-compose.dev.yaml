@@ -1,9 +1,0 @@
-name: learn_jenkins_develop
-services:
-  learn_jenkins_develop:
-    container_name: learn_jenkins_develop
-    image: arthurhozanna/learn_jenkins_develop:1
-    ports:
-      - "8001:8001"
-    env_file:
-      - .env
