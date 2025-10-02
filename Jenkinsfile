@@ -95,7 +95,7 @@ pipeline {
           DB_PASSWORD=${DB_PASS}  
           DB_HOST=${DB_HOST}
           DB_PORT=${DB_PORT}
-          DB_NAME=${DB_NAME}
+          DB_NAME=${DB_NAME_PROD}
           DB_NAME_TESTING=${DB_NAME_TESTING}
           PORT=${PORT}
           EOF
