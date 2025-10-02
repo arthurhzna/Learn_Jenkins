@@ -67,7 +67,7 @@ pipeline {
     stage('Unit Test') {
       steps {
         sh '''
-          sudo docker run --rm \
+          docker run --rm \
             -v "$WORKSPACE":/app -w /app \
             golang:1.22.7-alpine3.20 sh -eux -c "
               apk add --no-cache git
