@@ -18,7 +18,7 @@ import (
 
 func main() {
 	_ = godotenv.Load()
-	port := os.Getenv("Port")
+	port := os.Getenv("PORT")
 	db, err := config.InitDatabase()
 	if err != nil {
 		panic(err)
