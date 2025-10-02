@@ -89,15 +89,6 @@ pipeline {
         sh '''
           set -x  # Enable debug mode
           
-          # Debug: print all variables
-          echo "DB_USER: ${DB_USER}"
-          echo "DB_PASS: ${DB_PASS}"
-          echo "DB_HOST: ${DB_HOST}" 
-          echo "DB_PORT: ${DB_PORT}"
-          echo "DB_NAME_PROD: ${DB_NAME_PROD}"
-          echo "DB_NAME_TESTING: ${DB_NAME_TESTING}"
-          echo "PORT: ${PORT}"
-          
           # Create .env file with all required variables - SIMPLIFIED VERSION
           echo "DB_USERNAME=${DB_USER}" > .env
           echo "DB_PASSWORD=${DB_PASS}" >> .env  
@@ -207,7 +198,7 @@ pipeline {
             sh """
               ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${USERNAME}@${HOST} '
                 # Define app directory
-                APP_DIR="\${APP_DIR}"
+                APP_DIR="${APP_DIR}"
 
                 # ensure parent exists 
                 mkdir -p "\$(dirname \"\$APP_DIR\")"
