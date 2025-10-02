@@ -1,6 +1,4 @@
-version: '3.8'
-name: learn_jenkins_staging
-services:
+services: 
   learn_jenkins_staging:
     container_name: learn_jenkins_staging
     image: arthurhozanna/learn_jenkins_staging:1

@@ -1,6 +1,4 @@
-version: '3.8'
-name: learn_jenkins_develop
-services:
+services: 
   learn_jenkins_develop:
     container_name: learn_jenkins_develop
     image: arthurhozanna/learn_jenkins_develop:1
