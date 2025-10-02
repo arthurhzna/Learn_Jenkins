@@ -11,7 +11,7 @@ watch:
 	bin/air
 
 build: 
-	go build -o learn_jenkins
+	go build -o Learn_Jenkins
 
 docker-compose: 
 	docker-compose up -d --build --force-recreate
