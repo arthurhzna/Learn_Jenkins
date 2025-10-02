@@ -68,13 +68,12 @@ pipeline {
           def imageTag = "${shortSha ?: 'local'}-${env.BUILD_NUMBER ?: '0'}"
           def imageFull = "${imageName}:${imageTag}"
 
-          // Set environment variables
-          env.TARGET = target
-          env.IMAGE_NAME = imageName
-          env.IMAGE_TAG = imageTag
-          env.IMAGE_FULL = imageFull
+          TARGET = target
+          IMAGE_NAME = imageName
+          IMAGE_TAG = imageTag
+          IMAGE_FULL = imageFull
 
-          echo "TARGET=${env.TARGET} IMAGE=${env.IMAGE_FULL}"
+          echo "TARGET=${TARGET} IMAGE=${IMAGE_FULL}"
         }
       }
     }
@@ -143,7 +142,6 @@ pipeline {
           def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
           return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
         }
-        // expression { return !env.CHANGE_ID && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
       }
       steps {
         script {
