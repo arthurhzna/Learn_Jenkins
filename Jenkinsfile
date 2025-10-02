@@ -180,7 +180,7 @@ pipeline {
     stage('Deploy to Remote Host') {
       when {
         expression {
-          def targetBranches = ['develop', 'staging', 'master', 'main'] 
+          def targetBranches = ['develop', 'staging', 'master', 'main']   
           return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
         }
       }
