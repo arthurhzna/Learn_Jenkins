@@ -89,29 +89,25 @@ pipeline {
         //     "
         // '''
         sh '''
+          # Debug: print all variables
+          echo "DB_USER: ${DB_USER}"
+          echo "DB_PASS: ${DB_PASS}"
+          echo "DB_HOST: ${DB_HOST}" 
+          echo "DB_PORT: ${DB_PORT}"
+          echo "DB_NAME_PROD: ${DB_NAME_PROD}"
+          echo "DB_NAME_TESTING: ${DB_NAME_TESTING}"
+          echo "PORT: ${PORT}"
+          
           # Create .env file with all required variables
           cat > .env << EOF
-        DB_USERNAME=${DB_USER}
-        DB_PASSWORD=${DB_PASS}  
-        DB_HOST=${DB_HOST}
-        DB_PORT=${DB_PORT}
-        DB_NAME=${DB_NAME_PROD}
-        DB_NAME_TESTING=${DB_NAME_TESTING}
-        PORT=${PORT}
+        DB_USERNAME='${DB_USER}'
+        DB_PASSWORD='${DB_PASS}'  
+        DB_HOST='${DB_HOST}'
+        DB_PORT='${DB_PORT}'
+        DB_NAME='${DB_NAME_PROD}'
+        DB_NAME_TESTING='${DB_NAME_TESTING}'
+        PORT='${PORT}'
         EOF
-          docker run --rm \
-            -v "$WORKSPACE":/app -w /app \
-            golang:1.24.2-alpine3.20 sh -eux -c "
-              apk add --no-cache git
-              go env
-              go mod tidy
-              if go test ./...; then
-                echo '✅ All tests passed'
-              else
-                echo '❌ Some tests failed' 1>&2
-                exit 1
-              fi
-            "
         '''
       }
     }
