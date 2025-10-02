@@ -69,7 +69,7 @@ pipeline {
         sh '''
           docker run --rm \
             -v "$WORKSPACE":/app -w /app \
-            golang:1.22.7-alpine3.20 sh -eux -c "
+            golang:1.24.2-alpine3.20 sh -eux -c "
               apk add --no-cache git
               go env
               go mod tidy
