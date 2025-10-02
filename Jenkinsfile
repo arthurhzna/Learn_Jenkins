@@ -180,7 +180,7 @@ pipeline {
     stage('Deploy to Remote Host') {
       when {
         expression {
-          def targetBranches = ['develop', 'staging', 'master', 'main']
+          def targetBranches = ['develop', 'staging', 'master', 'main'] 
           return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
         }
       }
@@ -203,7 +203,7 @@ pipeline {
                 mkdir -p "\$(dirname \"\$APP_DIR\")"
 
                 if [ -d "\$APP_DIR/.git" ]; then
-                  echo "Directory exists. Pulling latest changes."
+                  echo "Directory exists. Pulling latest changes." 
                   cd "\$APP_DIR"
                   git pull origin ${env.BRANCH_NAME}
                 else
