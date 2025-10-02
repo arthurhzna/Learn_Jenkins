@@ -1,7 +1,7 @@
 services: 
   learn_jenkins_staging:
     container_name: learn_jenkins_staging
-    image: arthurhozanna/learn_jenkins_staging:1
+    image: arthurhozanna/learn_jenkins_staging:3b448c570946f19144fe2a1ab171e7f526056445-2
     ports:
       - "8002:8001"
     env_file:
