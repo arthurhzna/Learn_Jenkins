@@ -89,6 +89,8 @@ pipeline {
         //     "
         // '''
         sh '''
+          set -x  # Enable debug mode
+          
           # Debug: print all variables
           echo "DB_USER: ${DB_USER}"
           echo "DB_PASS: ${DB_PASS}"
@@ -108,6 +110,25 @@ pipeline {
         DB_NAME_TESTING='${DB_NAME_TESTING}'
         PORT='${PORT}'
         EOF
+
+          # Show content of .env file
+          echo "=== .env file content ==="
+          cat .env
+          echo "========================="
+
+          docker run --rm \
+            -v "$WORKSPACE":/app -w /app \
+            golang:1.24.2-alpine3.20 sh -eux -c "
+              apk add --no-cache git
+              go env
+              go mod tidy
+              if go test ./...; then
+                echo '✅ All tests passed'
+              else
+                echo '❌ Some tests failed' 1>&2
+                exit 1
+              fi
+            "
         '''
       }
     }
