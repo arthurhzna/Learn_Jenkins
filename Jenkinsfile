@@ -209,7 +209,7 @@ pipeline {
                 # Define app directory
                 APP_DIR="\${APP_DIR}"
 
-                # ensure parent exists
+                # ensure parent exists 
                 mkdir -p "$(dirname "\$APP_DIR")"
 
                 if [ -d "\$APP_DIR/.git" ]; then
