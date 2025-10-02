@@ -4,10 +4,5 @@ services:
     image: arthurhozanna/learn_jenkins_staging:1
     ports:
       - "8002:8002"
-    environment:
-      - DB_USERNAME=${DB_USER}
-      - DB_PASSWORD=${DB_PASS}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME_PROD}
-      - PORT=${PORT}
+    env_file:
+      - .env

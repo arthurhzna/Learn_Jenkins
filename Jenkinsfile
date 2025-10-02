@@ -213,15 +213,22 @@ pipeline {
                   cd "\$APP_DIR"
                 fi
                 
-                export DB_USER="${DB_USER}"
-                export DB_PASS="${DB_PASS}"
-                export DB_HOST="${DB_HOST}"
-                export DB_PORT="${DB_PORT}"
-                export DB_NAME_PROD="${DB_NAME_PROD}"
-                export PORT="${PORT}"
-                
                 # Pull latest image
                 docker-compose -f docker-compose.${TARGET}.yaml pull || true
+                
+                # Copy .env.example to .env and update with sed
+                cp .env.example .env
+                sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USER}/" .env
+                sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASS}/" .env
+                sed -i "s/^DB_HOST=.*/DB_HOST=${DB_HOST}/" .env
+                sed -i "s/^DB_PORT=.*/DB_PORT=${DB_PORT}/" .env
+                sed -i "s/^DB_NAME=.*/DB_NAME=${DB_NAME_PROD}/" .env
+                sed -i "s/^PORT=.*/PORT=${PORT}/" .env
+                
+                # Show .env content for debugging
+                echo "=== .env file content ==="
+                cat .env
+                echo "========================="
                 
                 # Deploy
                 docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans
