@@ -58,16 +58,16 @@ pipeline {
           def imageName = ''
           
           if (b == 'develop' || b == 'development') {
-            target = 'dev'
+            target = 'development'
             imageName = 'arthurhozanna/learn_jenkins_develop'
           } else if (b == 'staging' || b == 'stage') {  
             target = 'staging'
             imageName = 'arthurhozanna/learn_jenkins_staging'
           } else if (b == 'master' || b == 'main' || b == 'live') {
-            target = 'prod'
+            target = 'production'
             imageName = 'arthurhozanna/learn_jenkins_prod'
           } else {
-            target = 'dev'
+            target = 'development'
             imageName = 'arthurhozanna/learn_jenkins_develop'
           }
 
