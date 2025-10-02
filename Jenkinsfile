@@ -91,14 +91,14 @@ pipeline {
         sh '''
           # Create .env file with all required variables
           cat > .env << EOF
-          DB_USERNAME=${DB_USER}
-          DB_PASSWORD=${DB_PASS}  
-          DB_HOST=${DB_HOST}
-          DB_PORT=${DB_PORT}
-          DB_NAME=${DB_NAME_PROD}
-          DB_NAME_TESTING=${DB_NAME_TESTING}
-          PORT=${PORT}
-          EOF
+        DB_USERNAME=${DB_USER}
+        DB_PASSWORD=${DB_PASS}  
+        DB_HOST=${DB_HOST}
+        DB_PORT=${DB_PORT}
+        DB_NAME=${DB_NAME_PROD}
+        DB_NAME_TESTING=${DB_NAME_TESTING}
+        PORT=${PORT}
+        EOF
           docker run --rm \
             -v "$WORKSPACE":/app -w /app \
             golang:1.24.2-alpine3.20 sh -eux -c "
