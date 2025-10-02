@@ -157,21 +157,22 @@ pipeline {
     }
 
     stage('Deploy to Remote Host') {
-      when {
-        expression { 
-          def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
-          return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
-        }
-        // expression { return !env.CHANGE_ID && (currentBuild.result == null || currentBuild.result == 'SUCCESS') }
-      }
       steps {
         script {
           withCredentials([sshUserPrivateKey(credentialsId: env.SSH_KEY_CREDS, keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
             sh """
               ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${USERNAME}@${HOST} '
                 cd /path/to/app || exit 1
-                # tarik image terbaru berdasarkan tag
+                
+                export DB_USER="${DB_USER}"
+                export DB_PASS="${DB_PASS}"
+                export DB_HOST="${DB_HOST}"
+                export DB_PORT="${DB_PORT}"
+                export DB_NAME_PROD="${DB_NAME_PROD}"
+                export PORT="${PORT}"
+                
                 docker-compose -f docker-compose.${TARGET}.yaml pull || true
+                
                 docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans
               '
             """
