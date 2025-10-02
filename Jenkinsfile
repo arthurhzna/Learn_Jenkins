@@ -22,18 +22,25 @@ pipeline {
 
   stages {
     stage('Check skip') {
-    steps {
+      steps {
         script {
-        if (env.CHANGE_ID) {
+          // checkout scm
+          if (env.CHANGE_ID) {
             def title = env.CHANGE_TITLE ?: ''
             echo "PR title: ${title}"
             if (title.toLowerCase().contains('[skip ci]')) {
-            currentBuild.result = 'ABORTED'
-            error('Aborted by [skip ci] in PR title')
+              currentBuild.result = 'ABORTED'
+              error('Aborted by [skip ci] in PR title')
             }
+          }
+          def lastMsg = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim().toLowerCase()
+          echo "Last commit message: ${lastMsg}"
+          if (lastMsg.contains('[skip ci]') || lastMsg.contains('[ci skip]')) {
+            currentBuild.result = 'ABORTED'
+            error('Aborted by skip token in commit message')
+          }
         }
-        }
-    }
+      }
     }
     stage('Checkout') {
       steps {
