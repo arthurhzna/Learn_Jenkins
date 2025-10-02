@@ -210,7 +210,7 @@ pipeline {
                 APP_DIR="\${APP_DIR}"
 
                 # ensure parent exists 
-                mkdir -p "$(dirname "\$APP_DIR")"
+                mkdir -p "\$(dirname \"\$APP_DIR\")"
 
                 if [ -d "\$APP_DIR/.git" ]; then
                   echo "Directory exists. Pulling latest changes."
