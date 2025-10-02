@@ -95,7 +95,7 @@ pipeline {
             -e DB_PORT=${DB_PORT} \
             -e DB_USER=${DB_USER} \
             -e DB_PASS=${DB_PASS} \
-            -e DB_NAME_TESTING=${DB_NAME_TESTING} \  
+            -e DB_NAME_TESTING=${DB_NAME_TESTING} \
             -e PORT=${PORT} \
             golang:1.24.2-alpine3.20 sh -eux -c "
               apk add --no-cache git
