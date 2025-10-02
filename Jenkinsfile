@@ -212,8 +212,6 @@ pipeline {
                   cd "\$APP_DIR"
                 fi
 
-                docker-compose -f docker-compose.${TARGET}.yaml down --remove-orphans || true
-
                 cp .env.example .env
                 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USER}/" .env
                 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASS}/" .env
@@ -222,7 +220,7 @@ pipeline {
                 sed -i "s/^DB_NAME=.*/DB_NAME=${DB_NAME_PROD}/" .env
                 sed -i "s/^PORT=.*/PORT=${PORT}/" .env
 
-                docker rm -f learn_jenkins_${TARGET} || true
+                docker-compose -f docker-compose.${TARGET}.yaml down --remove-orphans || true
                 docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans --force-recreate
               '
             """
