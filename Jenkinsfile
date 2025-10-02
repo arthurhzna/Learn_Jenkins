@@ -200,25 +200,31 @@ pipeline {
           def appName = "Learn_Jenkins"
           def suffix = (deployEnv == 'prod' || deployEnv == 'production') ? '_prod' : (deployEnv == 'staging' ? '_staging' : '_dev')
           def APP_DIR = "${appBase}/${appName}${suffix}"
-          withCredentials([sshUserPrivateKey(credentialsId: env.SSH_KEY_CREDS, keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
+          withCredentials([
+            sshUserPrivateKey(credentialsId: env.SSH_KEY_CREDS, keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER'),
+            usernamePassword(credentialsId: 'github-credential', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_PASSWORD')
+          ]) {
             sh """
               ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${USERNAME}@${HOST} '
                 # Define app directory
                 APP_DIR="${APP_DIR}"
-                
+
+                # ensure parent exists
+                mkdir -p "$(dirname "\$APP_DIR")"
+
                 if [ -d "\$APP_DIR/.git" ]; then
                   echo "Directory exists. Pulling latest changes."
                   cd "\$APP_DIR"
                   git pull origin ${env.BRANCH_NAME}
                 else
-                  echo "Directory does not exist. Cloning repository."
-                  git clone -b ${env.BRANCH_NAME} git@github.com:arthurhzna/Learn_Jenkins.git "\$APP_DIR"
+                  echo "Directory does not exist. Cloning repository using HTTPS (PAT)."
+                  git clone -b ${env.BRANCH_NAME} https://${GITHUB_USERNAME}:${GITHUB_PASSWORD}@github.com/arthurhzna/Learn_Jenkins.git "\$APP_DIR"
                   cd "\$APP_DIR"
                 fi
-                
+
                 # Pull latest image
                 docker-compose -f docker-compose.${TARGET}.yaml pull || true
-                
+
                 # Copy .env.example to .env and update with sed
                 cp .env.example .env
                 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USER}/" .env
@@ -227,12 +233,12 @@ pipeline {
                 sed -i "s/^DB_PORT=.*/DB_PORT=${DB_PORT}/" .env
                 sed -i "s/^DB_NAME=.*/DB_NAME=${DB_NAME_PROD}/" .env
                 sed -i "s/^PORT=.*/PORT=${PORT}/" .env
-                
+
                 # Show .env content for debugging
                 echo "=== .env file content ==="
                 cat .env
                 echo "========================="
-                
+
                 # Deploy
                 docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans
               '
