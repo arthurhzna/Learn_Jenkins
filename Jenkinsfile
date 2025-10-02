@@ -231,7 +231,7 @@ pipeline {
                 echo "========================="
 
                 # Deploy
-                docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans
+                docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans --force-recreate
               '
             """
           }
