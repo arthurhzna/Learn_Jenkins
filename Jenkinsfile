@@ -206,14 +206,13 @@ pipeline {
                 if [ -d "\$APP_DIR/.git" ]; then
                   echo "Directory exists. Pulling latest changes."
                   cd "\$APP_DIR"
-                  git pull origin ${TARGET_BRANCH}
+                  git pull origin ${env.BRANCH_NAME}
                 else
                   echo "Directory does not exist. Cloning repository."
-                  git clone -b ${TARGET_BRANCH} https://github.com/arthurhzna/Learn_Jenkins.git "\$APP_DIR"
+                  git clone -b ${env.BRANCH_NAME} https://github.com/arthurhzna/Learn_Jenkins.git "\$APP_DIR"
                   cd "\$APP_DIR"
                 fi
                 
-                # Export environment variables
                 export DB_USER="${DB_USER}"
                 export DB_PASS="${DB_PASS}"
                 export DB_HOST="${DB_HOST}"
