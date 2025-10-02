@@ -43,29 +43,36 @@ pipeline {
         }
       }
     }
-
     stage('Set Target & Image') {
       steps {
         script {
           def b = env.BRANCH_NAME?.toLowerCase()
+          def target = ''
+          def imageName = ''
+          
           if (b == 'develop' || b == 'development') {
-            env.TARGET = 'dev'
-            env.IMAGE_NAME = 'arthurhozanna/learn_jenkins_develop'
+            target = 'dev'
+            imageName = 'arthurhozanna/learn_jenkins_develop'
           } else if (b == 'staging' || b == 'stage') {
-            env.TARGET = 'staging'
-            env.IMAGE_NAME = 'arthurhozanna/learn_jenkins_staging'
+            target = 'staging'
+            imageName = 'arthurhozanna/learn_jenkins_staging'
           } else if (b == 'master' || b == 'main' || b == 'live') {
-            env.TARGET = 'prod'
-            env.IMAGE_NAME = 'arthurhozanna/learn_jenkins_prod'
+            target = 'prod'
+            imageName = 'arthurhozanna/learn_jenkins_prod'
           } else {
-
-            env.TARGET = 'dev'
-            env.IMAGE_NAME = 'arthurhozanna/learn_jenkins_develop'
+            target = 'dev'
+            imageName = 'arthurhozanna/learn_jenkins_develop'
           }
 
           def shortSha = (env.GIT_COMMIT ?: sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim())
-          env.IMAGE_TAG = "${shortSha ?: 'local'}-${env.BUILD_NUMBER ?: '0'}"
-          env.IMAGE_FULL = "${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+          def imageTag = "${shortSha ?: 'local'}-${env.BUILD_NUMBER ?: '0'}"
+          def imageFull = "${imageName}:${imageTag}"
+
+          // Set environment variables
+          env.TARGET = target
+          env.IMAGE_NAME = imageName
+          env.IMAGE_TAG = imageTag
+          env.IMAGE_FULL = imageFull
 
           echo "TARGET=${env.TARGET} IMAGE=${env.IMAGE_FULL}"
         }
