@@ -7,6 +7,13 @@ pipeline {
     SSH_KEY_CREDS = 'ssh-key'   
     HOST = credentials('host')
     USERNAME = credentials('username')
+    DB_HOST = credentials('db-host')
+    DB_PORT = credentials('db-port')
+    DB_USER = credentials('db-user')
+    DB_PASS = credentials('db-pass')
+    DB_NAME_PROD = credentials('db-name-prod')           
+    DB_NAME_TESTING = credentials('db-name-test') 
+    PORT = credentials('app-port')
     TARGET = ''
     IMAGE_NAME = ''
     IMAGE_FULL = ''
@@ -66,9 +73,30 @@ pipeline {
     }
     stage('Unit Test') {
       steps {
+        // sh '''
+        //   docker run --rm \
+        //     -v "$WORKSPACE":/app -w /app \
+        //     golang:1.24.2-alpine3.20 sh -eux -c "
+        //       apk add --no-cache git
+        //       go env
+        //       go mod tidy
+        //       if go test ./...; then
+        //         echo '✅ All tests passed'
+        //       else
+        //         echo '❌ Some tests failed' 1>&2
+        //         exit 1
+        //       fi
+        //     "
+        // '''
         sh '''
           docker run --rm \
             -v "$WORKSPACE":/app -w /app \
+            -e DB_HOST=${DB_HOST} \
+            -e DB_PORT=${DB_PORT} \
+            -e DB_USER=${DB_USER} \
+            -e DB_PASS=${DB_PASS} \
+            -e DB_NAME_TESTING=${DB_NAME_TESTING} \  
+            -e PORT=${PORT} \
             golang:1.24.2-alpine3.20 sh -eux -c "
               apk add --no-cache git
               go env
