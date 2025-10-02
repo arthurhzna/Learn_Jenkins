@@ -195,28 +195,31 @@ pipeline {
       }
       steps {
         script {
+          def deployEnv = (params.DEPLOY_ENV ?: env.DEPLOY_ENV ?: env.BRANCH_NAME ?: 'dev').toLowerCase()
+          def appBase = "/home/arthurhozana123/go"
+          def appName = "Learn_Jenkins"
+          def suffix = (deployEnv == 'prod' || deployEnv == 'production') ? '_prod' : (deployEnv == 'staging' ? '_staging' : '_dev')
+          def APP_DIR = "${appBase}/${appName}${suffix}"
           withCredentials([sshUserPrivateKey(credentialsId: env.SSH_KEY_CREDS, keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
-            sh '''
+            sh """
               ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${USERNAME}@${HOST} '
-                # Base dir and per-target app dir to isolate environments
-                APP_BASE="/home/arthurhozana123/go/Learn_Jenkins"
-                APP_DIR="$APP_BASE-${TARGET}"
-
-                if [ -d "$APP_DIR/.git" ]; then
-                  echo "Directory exists at $APP_DIR. Updating branch ${BRANCH_NAME}."
-                  cd "$APP_DIR"
-                  git fetch --all --prune
-                  git checkout ${BRANCH_NAME}
-                  git reset --hard origin/${BRANCH_NAME}
-                  git pull origin ${BRANCH_NAME}
+                # Define app directory
+                APP_DIR="${APP_DIR}"
+                
+                if [ -d "\$APP_DIR/.git" ]; then
+                  echo "Directory exists. Pulling latest changes."
+                  cd "\$APP_DIR"
+                  git pull origin ${env.BRANCH_NAME}
                 else
-                  echo "Cloning repository into $APP_DIR (branch ${BRANCH_NAME})."
-                  git clone -b ${BRANCH_NAME} git@github.com:arthurhzna/Learn_Jenkins.git "$APP_DIR"
-                  cd "$APP_DIR"
+                  echo "Directory does not exist. Cloning repository."
+                  git clone -b ${env.BRANCH_NAME} git@github.com:arthurhzna/Learn_Jenkins.git "\$APP_DIR"
+                  cd "\$APP_DIR"
                 fi
-
+                
+                # Pull latest image
                 docker-compose -f docker-compose.${TARGET}.yaml pull || true
-
+                
+                # Copy .env.example to .env and update with sed
                 cp .env.example .env
                 sed -i "s/^DB_USERNAME=.*/DB_USERNAME=${DB_USER}/" .env
                 sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=${DB_PASS}/" .env
@@ -224,14 +227,16 @@ pipeline {
                 sed -i "s/^DB_PORT=.*/DB_PORT=${DB_PORT}/" .env
                 sed -i "s/^DB_NAME=.*/DB_NAME=${DB_NAME_PROD}/" .env
                 sed -i "s/^PORT=.*/PORT=${PORT}/" .env
-
-                echo "=== .env file content for $APP_DIR ==="
+                
+                # Show .env content for debugging
+                echo "=== .env file content ==="
                 cat .env
-                echo "======================================="
-
-                docker-compose -f docker-compose.${TARGET}.yaml up -d
+                echo "========================="
+                
+                # Deploy
+                docker-compose -f docker-compose.${TARGET}.yaml up -d --remove-orphans
               '
-            '''
+            """
           }
         }
       }
