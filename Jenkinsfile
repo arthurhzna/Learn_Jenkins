@@ -79,21 +79,6 @@ pipeline {
     }
     stage('Unit Test') {
       steps {
-        // sh '''
-        //   docker run --rm \
-        //     -v "$WORKSPACE":/app -w /app \
-        //     golang:1.24.2-alpine3.20 sh -eux -c "
-        //       apk add --no-cache git
-        //       go env
-        //       go mod tidy
-        //       if go test ./...; then
-        //         echo '✅ All tests passed'
-        //       else
-        //         echo '❌ Some tests failed' 1>&2
-        //         exit 1
-        //       fi
-        //     "
-        // '''
         sh '''
           set -x  # Enable debug mode
           
@@ -139,7 +124,7 @@ pipeline {
     stage('Build & Push Image') {
       when {
         expression { 
-          def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
+          def targetBranches = ['develop', 'staging', 'master', 'main']
           return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
         }
       }
@@ -158,7 +143,7 @@ pipeline {
     stage('Update docker-compose.yaml') {
       when {
         expression { 
-          def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
+          def targetBranches = ['develop', 'staging', 'master', 'main']
           return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
         }
       }
@@ -174,7 +159,7 @@ pipeline {
     stage('Commit and Push Changes') {
       when {
         expression { 
-          def targetBranches = ['develop', 'staging', 'master', 'main', 'live']
+          def targetBranches = ['develop', 'staging', 'master', 'main']
           return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
         }
       }
@@ -195,6 +180,12 @@ pipeline {
       }
     }
     stage('Deploy to Remote Host') {
+      when {
+        expression {
+          def targetBranches = ['develop', 'staging', 'master', 'main']
+          return !env.CHANGE_ID && targetBranches.contains(env.BRANCH_NAME)
+        }
+      }
       steps {
         script {
           withCredentials([sshUserPrivateKey(credentialsId: env.SSH_KEY_CREDS, keyFileVariable: 'SSH_KEY_FILE', usernameVariable: 'SSH_USER')]) {
