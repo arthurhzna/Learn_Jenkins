@@ -24,6 +24,7 @@ pipeline {
     stage('Check skip') {
       steps {
         script {
+          cleanWs() 
           checkout scm
           if (env.CHANGE_ID) {
             def title = env.CHANGE_TITLE ?: ''
