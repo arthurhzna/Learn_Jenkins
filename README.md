@@ -80,11 +80,7 @@ This repository contains a `Jenkinsfile` implementing the following pipeline:
 
 Below is the current CI/CD screenshot captured from your environment showing three running containers for each target (production, development, staging):
 
-```startLine:50:endLine:211:img/Screenshot 2025-10-03 011611.png
-// Screenshot: CI/CD containers (production, development, staging)
-```
-
-> Note: The screenshot is attached to the repository under `img/`.
+![CI/CD Containers (production, development, staging)](img/Screenshot%202025-10-03%20011611.png)
 
 ## Repository structure
 
@@ -152,7 +148,39 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 
 4. Recommended Jenkins plugins: **Blue Ocean**, **Docker**, **Go**, **SSH Agent**.
 
-5. Configure Jenkins credentials (IDs used in `Jenkinsfile`):
+5. Install Docker and Docker Compose (required for unit tests):
+
+```bash
+sudo apt update
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install docker-ce docker-ce-cli containerd.io -y
+sudo systemctl enable --now docker
+
+# Install Docker Compose
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+6. Configure Docker user groups:
+
+```bash
+sudo usermod -aG docker ${USER}
+sudo su - ${USER}
+# Verify group membership
+groups
+
+# Add the Jenkins system user to the `docker` group 
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+
+# Verify docker group members
+getent group docker
+```
+
+7. Configure Jenkins credentials (IDs used in `Jenkinsfile`):
 
 - `docker-credential` (username/password)
 - `github-credential` (username/password or PAT)
