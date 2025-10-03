@@ -1,6 +1,6 @@
 pipeline {
   agent any
-
+ 
   environment {
     DOCKER_CREDENTIALS = credentials('docker-credential')
     GITHUB_CREDENTIALS = credentials('github-credential')
@@ -24,6 +24,7 @@ pipeline {
     stage('Check skip') {
       steps {
         script {
+          cleanWs() 
           checkout scm
           if (env.CHANGE_ID) {
             def title = env.CHANGE_TITLE ?: ''
