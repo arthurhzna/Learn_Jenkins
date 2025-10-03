@@ -1,54 +1,48 @@
-Misalnya:
+For example:
 
-Ada branch feature/login dengan PR ke main.
-Konfigurasi Jenkins:
+There is a branch `feature/login` with a PR to `main`.
+Jenkins configuration:
 
 Discover Branches: Exclude branches that are also filed as PRs.
 Discover Pull Requests from Origin: The current pull request revision.
 
-
-
-Apa yang Terjadi?
+What happens?
 
 Discover Branches: Exclude branches that are also filed as PRs:
 
-Jenkins tidak membuat job pipeline untuk branch feature/login karena branch ini punya PR terbuka ke main.
-Hanya branch tanpa PR (misalnya, main, develop, atau branch lain tanpa PR) yang akan dibuatkan job pipeline (misalnya, job bernama main atau develop).
-
+Jenkins doesn't create a pipeline job for the `feature/login` branch because this branch has an open PR to `main`.
+Only branches without a PR (for example, `main`, `develop`, or other branches without a PR) will have pipeline jobs created (for example, jobs named `main` or `develop`).
 
 Discover Pull Requests from Origin: The current pull request revision:
 
-Jenkins mendeteksi PR dari feature/login ke main dan membuat job PR (misalnya, PR-123).
-Job ini membuild kode dari commit terbaru di feature/login (head revision), tanpa simulasi merge ke main.
+Jenkins detects the PR from `feature/login` to `main` and creates a PR job (for example, `PR-123`).
+This job builds the code from the latest commit on `feature/login` (the head revision), without a simulated merge into `main`.
 
+Why is `feature/login` still built?
 
+Yes, the code in `feature/login` is still built, but as a PR job (`PR-123`) rather than as a separate branch job (there is no job named `feature-login`).
+This is the desired behavior: you want the PR to be tested (as part of the review process), but you don't want the `feature/login` branch built twice (once as a branch job, once as a PR job).
 
-Mengapa feature/login Tetap Dibuild?
+Why is this not "useless"?
 
-Ya, kode di feature/login tetap dibuild, tapi sebagai job PR (PR-123), bukan sebagai job branch terpisah (tidak ada job bernama feature-login).
-Ini adalah perilaku yang diinginkan: kamu ingin PR diuji (sebagai bagian dari proses review), tapi tidak ingin branch feature/login dibuild dua kali (sekali sebagai branch, sekali sebagai PR).
+The combination of "Exclude branches that are also filed as PRs" with "The current pull request revision" is not useless because the goal is to group and optimize builds to avoid duplication. Here are the specific reasons:
 
-Mengapa Tidak "Percuma"?
-Kombinasi Exclude branches that are also filed as PRs dengan The current pull request revision tidak percuma karena tujuannya adalah mengelompokkan dan mengoptimalkan build agar tidak duplikasi. Berikut alasan spesifiknya:
+Avoiding Duplicate Builds:
 
-Menghindari Duplikasi Build:
+If you don't use "Exclude branches that are also filed as PRs" and instead use "All branches", Jenkins will create two jobs for `feature/login`:
 
-Jika kamu tidak menggunakan Exclude branches that are also filed as PRs dan malah pakai All branches, Jenkins akan membuat dua job untuk feature/login:
+A branch job named `feature-login` (building the `feature/login` code).
+A PR job named `PR-123` (also building the `feature/login` code, because "The current pull request revision" only builds the head revision of `feature/login`).
 
-Job branch bernama feature-login (membangun kode feature/login).
-Job PR bernama PR-123 (juga membangun kode feature/login, karena The current pull request revision hanya build head revision feature/login).
-
-
-Ini berarti dua build identik untuk kode yang sama, yang membuang-buang resource (CPU, memori, waktu) di server Jenkins
-
+This means two identical builds for the same code, which wastes resources (CPU, memory, time) on the Jenkins server
 
 -------------------
 stage('Example') {
     steps {
         script {
-            def myVar = "nilai stage"
-            echo myVar  // ✅ bekerja
-            sh "echo ${myVar}"  // ✅ bekerja
+            def myVar = "stage value"
+            echo myVar  // ✅ works
+            sh "echo ${myVar}"  // ✅ works
         }
     }
 }
@@ -56,10 +50,10 @@ stage('Example') {
 stage('Example') {
     steps {
         script {
-            def myVar = "nilai stage"
+            def myVar = "stage value"
         }
         script {
-            echo myVar  // ❌ ERROR: myVar tidak dikenal
+            echo myVar  // ❌ ERROR: myVar is not recognized
         }
     }
 }
@@ -67,7 +61,7 @@ stage('Example') {
 stage('Stage 1') {
     steps {
         script {
-            def myVar = "nilai stage 1"
+            def myVar = "stage 1 value"
         }
     }
 }
@@ -75,7 +69,7 @@ stage('Stage 1') {
 stage('Stage 2') {
     steps {
         script {
-            echo myVar  // ❌ ERROR: myVar tidak dikenal
+            echo myVar  // ❌ ERROR: myVar is not recognized
         }
     }
 }
@@ -87,7 +81,7 @@ environment {
 stage('Stage 1') {
     steps {
         script {
-            env.SHARED_VAR = "nilai shared"
+            env.SHARED_VAR = "shared value"
         }
     }
 }
@@ -95,7 +89,7 @@ stage('Stage 1') {
 stage('Stage 2') {
     steps {
         script {
-            echo env.SHARED_VAR  // ✅ bekerja
+            echo env.SHARED_VAR  // ✅ works
         }
     }
 }
@@ -105,7 +99,7 @@ def globalVar
 stage('Stage 1') {
     steps {
         script {
-            globalVar = "nilai global"
+            globalVar = "global value"
         }
     }
 }
@@ -113,8 +107,7 @@ stage('Stage 1') {
 stage('Stage 2') {
     steps {
         script {
-            echo globalVar  // ✅ bekerja
+            echo globalVar  // ✅ works
         }
     }
 }
-
